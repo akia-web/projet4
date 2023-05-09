@@ -130,12 +130,10 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) =>{
     if(file.mimetype === "image/jpg"){
         cb(null, true)
-    }else{
-        cb({message:'mauvais format de fichier'})
     }
 }
 
-const upload = multer({ storage: storage, fileFilter: fileFilter });
+const upload = multer({ storage: storage, FileFilter: fileFilter });
 const imgUpload = upload.single("lala");
 
 
