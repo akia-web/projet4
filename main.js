@@ -6,10 +6,10 @@ import { AccountDto } from "./models/accountDto.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import { imageDto } from "./models/imageDto.js";
-import multer from "multer";
+import multer from "fastify-multer";
 
 const server = fastify({ logger: true });
-
+server.register(multer.contentParser);
 //Probleme de cors
 server.register(cors, {
   origin: true,
@@ -35,7 +35,6 @@ start();
 
 const Account = model("account", AccountDto);
 
-
 // Inscription
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
@@ -58,7 +57,6 @@ server.post("/account", async (request, reply) => {
     }
   }
 });
-
 
 // Connexion avec token
 server.post("/login", async (request, reply) => {
@@ -89,7 +87,6 @@ server.post("/login", async (request, reply) => {
     reply.code(401).send("Identifiants invalides");
   }
 });
-
 
 // Delete compte
 server.delete("/account", async (request, reply) => {
@@ -122,11 +119,22 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
   },
 });
-const upload = multer({ storage: storage });
+
+const fileFilter = (req, file, cb) =>{
+    if(file.mimetype === "image/jpg"){
+        cb(null, true)
+    }else{
+        cb({message:'mauvais format de fichier'})
+    }
+}
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+const imgUpload = upload.single("lala");
 
 // send image
-server.post("/image", {}, upload.single("lala"), async (request, reply) => {
-  console.log(request);
+server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
+  console.log("upload");
 });
