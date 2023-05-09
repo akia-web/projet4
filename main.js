@@ -1,4 +1,6 @@
 import fastify from "fastify";
+import fastifyCors from "fastify-cors";
+
 import { genSalt, hash, compare } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
 import { AccountDto } from "./models/accountDto.js";
@@ -8,8 +10,7 @@ import jwt from "jsonwebtoken";
 const server = fastify({ logger: true });
 
 //Probleme de cors
-
-server.register(require("fastify-cors"), {
+server.register(fastifyCors, {
   origin: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Authorization", "Content-Type"],
@@ -33,6 +34,7 @@ start();
 
 const Account = model("account", AccountDto);
 
+
 // Inscription
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
@@ -55,6 +57,7 @@ server.post("/account", async (request, reply) => {
     }
   }
 });
+
 
 // Connexion avec token
 server.post("/login", async (request, reply) => {
@@ -85,6 +88,7 @@ server.post("/login", async (request, reply) => {
     reply.code(401).send("Identifiants invalides");
   }
 });
+
 
 // Delete compte
 server.delete("/account", async (request, reply) => {
