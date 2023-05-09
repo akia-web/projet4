@@ -117,7 +117,6 @@ server.delete("/account", async (request, reply) => {
 
 
 //  Image
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads");
@@ -138,6 +137,7 @@ const fileFilter = (req, file, cb) =>{
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 const imgUpload = upload.single("lala");
+
 
 // send image
 server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
