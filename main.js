@@ -127,9 +127,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) =>{
-    if (file.mimetype === "image/jpg" || file.mimetype === "image/png") {
-      cb(null, true);
-    } 
+    if(file.mimetype === "image/jpg"){
+        cb(null, true)
+    }else{
+        cb({message:'mauvais format de fichier'})
+    }
 }
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
