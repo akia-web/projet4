@@ -7,6 +7,7 @@ import fs from "fs";
 import jwt from "jsonwebtoken";
 import { imageDto } from "./models/imageDto.js";
 import multer from "fastify-multer";
+import { imgUpload } from "./functions/images.js";
 
 const server = fastify({ logger: true });
 server.register(multer.contentParser);
@@ -116,24 +117,7 @@ server.delete("/account", async (request, reply) => {
 });
 
 //  Image
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-    console.log(file.originalname);
-  },
-});
 
-const fileFilter = (req, file, cb) =>{
-    if(file.mimetype === "image/jpg"){
-        cb(null, true)
-    }
-}
-
-const upload = multer({ storage: storage, FileFilter: fileFilter });
-const imgUpload = upload.single("lala");
 
 
 // send image
