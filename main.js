@@ -10,6 +10,8 @@ import multer from "fastify-multer";
 
 const server = fastify({ logger: true });
 server.register(multer.contentParser);
+
+
 //Probleme de cors
 server.register(cors, {
   origin: true,
