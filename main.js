@@ -49,7 +49,34 @@ server.post("/account", async (request, reply) => {
 });
 
 
+
+
 // Connexion avec token 
+server.post("/login", async (request, reply) => {
+  const { email, password } = request.body;
+  try {
+    // Vérification de l'email et du mot de passe
+    const user = await CreateAccount.findOne({ email });
+    if (!user) {
+      throw new Error("Email ou mot de passe incorrect");
+    }
+    const validPassword = await compare(password, user.password);
+    if (!validPassword) {
+      throw new Error("Email ou mot de passe incorrect");
+    }
+
+    // Si les informations d'identification sont valides, créer le jeton JWT
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    reply.code(200).send({ token });
+  } catch (error) {
+    console.log(error);
+    reply.code(401).send("Identifiants invalides");
+  }
+});
+
+
 
 
 // Delete compte
