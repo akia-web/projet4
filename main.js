@@ -31,6 +31,8 @@ const CreateAccountSchema = new Schema({
 
 const CreateAccount = model("CreateSchema", CreateAccountSchema);
 
+
+// Inscription
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
   try {
@@ -47,6 +49,11 @@ server.post("/account", async (request, reply) => {
   }
 });
 
+
+// Connexion avec token 
+
+
+// Delete compte
 server.delete("/account/:id", async (request, reply) => {
   const accountId = request.params.id;
   try {
