@@ -31,19 +31,6 @@ const CreateAccountSchema = new Schema({
 
 const CreateAccount = model("CreateSchema", CreateAccountSchema);
 
-// server.post("/account", async (request, reply) => {
-//   //   console.log(request.body);
-//   const { email, password } = request.body;
-//   try {
-//     let hash = await hash(password, await genSalt(10));
-//     password = await hash(password, salt);
-//   } catch (error) {}
-
-//   const account = new CreateAccount({ email, password });
-//   await account.save();
-//   reply.code(201).send("Recettes enregistrées avec succès !");
-// });
-
 
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
@@ -52,7 +39,7 @@ server.post("/account", async (request, reply) => {
     const hashedPassword = await hash(password, salt);
     const account = new CreateAccount({ email, password: hashedPassword });
     await account.save();
-    reply.code(201).send("Recettes enregistrées avec succès !");
+    reply.code(201).send("Compte créer");
   } catch (error) {
     console.log(error);
     reply
