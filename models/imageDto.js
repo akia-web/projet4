@@ -4,9 +4,21 @@ export const imageDto = new Schema({
       type: Date,
       required: true,
     },
-    password: {
-      type: String,
+    isPublic: {
+      type: Boolean,
       required: true,
     },
+    name:{
+        type: String,
+        required:true
+    },
+    url:{
+        type: String,
+        required: true,
+    },
+    userId:{
+        type: Number,
+        required: true
+    }
   });
   
