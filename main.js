@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import { genSalt, hash, compare } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
-import {AccountDto } from "./models/accountDto.js";
+import { AccountDto } from "./models/accountDto.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 
@@ -20,9 +20,9 @@ const start = async () => {
 
 start();
 
-
-
 const CreateAccount = model("account", AccountDto);
+
+
 
 
 // Inscription
@@ -51,7 +51,7 @@ server.post("/account", async (request, reply) => {
 
 
 
-// Connexion avec token 
+// Connexion avec token
 server.post("/login", async (request, reply) => {
   const { email, password } = request.body;
   try {
@@ -63,14 +63,17 @@ server.post("/login", async (request, reply) => {
     const validPassword = await compare(password, user.password);
     if (!validPassword) {
       throw new Error("Email ou mot de passe incorrect");
-      
     }
 
     console.log(user);
     // Si les informations d'identification sont valides, créer le jeton JWT
-    const token = jwt.sign({ userId: user._id , bidule:"truc"}, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, bidule: "truc" },
+      "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF",
+      {
+        expiresIn: "1h",
+      }
+    );
     reply.code(200).send({ token });
   } catch (error) {
     console.log(error);
@@ -82,14 +85,31 @@ server.post("/login", async (request, reply) => {
 
 
 // Delete compte
-server.delete("/account/:id", async (request, reply) => {
-  const accountId = request.params.id;
+server.delete("/delete/", async (request, reply) => {
+  const authHeader = request.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return reply.code(403).send("Authentification invalide");
+  }
+  const token = authHeader.slice(7);
+  console.log(token);
+
+  const decodedToken = jwt.verify(token, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF");
+  const userId = decodedToken.userId;
+
+  console.log(userId);
+
   try {
-    await CreateAccount.findByIdAndDelete(accountId);
+  const userAccount =   await CreateAccount.findById(userId);
+    if (!userAccount) {
+      return reply.code(404).send('Compte non trouvé')
+    }
+
+
+    await CreateAccount.findByIdAndDelete(userId);
     reply.code(200).send("Compte supprimé avec succès !");
-  } catch {
-    reply
-      .code(500)
-      .send("Une erreur est survenue lors de la suppression du compte");
+  } catch (error) {
+    console.log(error);
+    reply.code(401).send("Authentification invalide");
   }
 });
