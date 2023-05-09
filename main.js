@@ -116,6 +116,9 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
+
+//  Image
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads");
