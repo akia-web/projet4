@@ -116,7 +116,7 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
-//  Image
+
 
 
 
