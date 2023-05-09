@@ -31,7 +31,6 @@ const CreateAccountSchema = new Schema({
 
 const CreateAccount = model("CreateSchema", CreateAccountSchema);
 
-
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
   try {
@@ -48,7 +47,14 @@ server.post("/account", async (request, reply) => {
   }
 });
 
-
-
-
-server.delete("/account", async (request, reply) => {});
+server.delete("/account/:id", async (request, reply) => {
+  const accountId = request.params.id;
+  try {
+    await CreateAccount.findByIdAndDelete(accountId);
+    reply.code(200).send("Compte supprimé avec succès !");
+  } catch {
+    reply
+      .code(500)
+      .send("Une erreur est survenue lors de la suppression du compte");
+  }
+});
