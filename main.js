@@ -2,6 +2,7 @@ import fastify from "fastify";
 import { genSalt, hash } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
 import fs from "fs";
+import jwt from "jsonwebtoken";
 
 const server = fastify({ logger: true });
 connect("mongodb://localhost:27017/account-projet4")
