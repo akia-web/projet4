@@ -6,6 +6,18 @@ import fs from "fs";
 import jwt from "jsonwebtoken";
 
 const server = fastify({ logger: true });
+
+//Probleme de cors
+
+server.addHook("onResponse", (request, reply, next) => {
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  reply.header("Access-Control-Allow-Headers", "Authorization");
+  next();
+});
+
+// Connexion DB
+
 connect("mongodb://localhost:27017/account-projet4")
   .then(() => console.log("connecté"))
   .catch((erreur) => console.log(erreur));
@@ -21,9 +33,6 @@ const start = async () => {
 start();
 
 const Account = model("account", AccountDto);
-
-
-
 
 // Inscription
 server.post("/account", async (request, reply) => {
@@ -47,9 +56,6 @@ server.post("/account", async (request, reply) => {
     }
   }
 });
-
-
-
 
 // Connexion avec token
 server.post("/login", async (request, reply) => {
@@ -81,9 +87,6 @@ server.post("/login", async (request, reply) => {
   }
 });
 
-
-
-
 // Delete compte
 server.delete("/account", async (request, reply) => {
   const authHeader = request.headers.authorization;
@@ -100,11 +103,10 @@ server.delete("/account", async (request, reply) => {
   console.log(userId);
 
   try {
-  const userAccount =   await Account.findById(userId);
+    const userAccount = await Account.findById(userId);
     if (!userAccount) {
-      return reply.code(404).send('Compte non trouvé')
+      return reply.code(404).send("Compte non trouvé");
     }
-
 
     await Account.findByIdAndDelete(userId);
     reply.code(200).send("Compte supprimé avec succès !");
@@ -114,8 +116,7 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
-
 // send image
 // server.post("image", async (request, reply) => {
-    
+
 // })
