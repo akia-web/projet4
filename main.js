@@ -9,11 +9,10 @@ const server = fastify({ logger: true });
 
 //Probleme de cors
 
-server.addHook("onResponse", (request, reply, next) => {
-  reply.header("Access-Control-Allow-Origin", "*");
-  reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  reply.header("Access-Control-Allow-Headers", "Authorization");
-  next();
+server.register(require("fastify-cors"), {
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Authorization", "Content-Type"],
 });
 
 // Connexion DB
