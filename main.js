@@ -1,6 +1,5 @@
 import fastify from "fastify";
-import fastifyCors from "fastify-cors";
-
+import cors from "@fastify/cors";
 import { genSalt, hash, compare } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
 import { AccountDto } from "./models/accountDto.js";
@@ -10,7 +9,7 @@ import jwt from "jsonwebtoken";
 const server = fastify({ logger: true });
 
 //Probleme de cors
-server.register(fastifyCors, {
+server.register(cors, {
   origin: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Authorization", "Content-Type"],
