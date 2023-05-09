@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import { genSalt, hash } from "bcrypt";
+import { genSalt, hash, compare } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
 import {AccountDto } from "./models/accountDto.js";
 import fs from "fs";
@@ -63,10 +63,12 @@ server.post("/login", async (request, reply) => {
     const validPassword = await compare(password, user.password);
     if (!validPassword) {
       throw new Error("Email ou mot de passe incorrect");
+      
     }
 
+    console.log(user);
     // Si les informations d'identification sont valides, créer le jeton JWT
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id , bidule:"truc"}, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF", {
       expiresIn: "1h",
     });
     reply.code(200).send({ token });
