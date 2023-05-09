@@ -29,23 +29,29 @@ const CreateAccountSchema = new Schema({
   },
 });
 
-const CreateAccount = model("CreateSchema", CreateAccountSchema);
+const CreateAccount = model("account", CreateAccountSchema);
 
 
 // Inscription
 server.post("/account", async (request, reply) => {
   const { email, password } = request.body;
-  try {
-    const salt = await genSalt(10);
-    const hashedPassword = await hash(password, salt);
-    const account = new CreateAccount({ email, password: hashedPassword });
-    await account.save();
-    reply.code(201).send("Compte créer");
-  } catch (error) {
-    console.log(error);
-    reply
-      .code(500)
-      .send("Une erreur est survenue lors de la création du compte");
+
+  const existAccount = await CreateAccount.find({ email: email });
+  if (existAccount.length > 0) {
+    reply.code(403).send("compte deja créer");
+  } else {
+    try {
+      const salt = await genSalt(10);
+      const hashedPassword = await hash(password, salt);
+      const account = new CreateAccount({ email, password: hashedPassword });
+      await account.save();
+      reply.code(201).send("Compte créer");
+    } catch (error) {
+      console.log(error);
+      reply
+        .code(500)
+        .send("Une erreur est survenue lors de la création du compte");
+    }
   }
 });
 
