@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import { genSalt, hash } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
+import { CreateAccountSchema } from "./models/accountDto.js";
 import fs from "fs";
 
 const server = fastify({ logger: true });
@@ -18,16 +19,7 @@ const start = async () => {
 
 start();
 
-const CreateAccountSchema = new Schema({
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
+
 
 const CreateAccount = model("account", CreateAccountSchema);
 
