@@ -1,8 +1,7 @@
 import {Schema} from "mongoose";
-
-export const AccountDto = new Schema({
-    email: {
-      type: String,
+export const imageDto = new Schema({
+    date: {
+      type: Date,
       required: true,
     },
     password: {

@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import { genSalt, hash } from "bcrypt";
 import { connect, Schema, model } from "mongoose";
-import { CreateAccountSchema } from "./models/accountDto.js";
+import {AccountDto } from "./models/accountDto.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 
@@ -22,7 +22,7 @@ start();
 
 
 
-const CreateAccount = model("account", CreateAccountSchema);
+const CreateAccount = model("account", AccountDto);
 
 
 // Inscription
