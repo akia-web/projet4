@@ -5,6 +5,8 @@ import { connect, Schema, model } from "mongoose";
 import { AccountDto } from "./models/accountDto.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import { imageDto } from "./models/imageDto.js";
+import multer from "multer";
 
 const server = fastify({ logger: true });
 
@@ -97,12 +99,8 @@ server.delete("/account", async (request, reply) => {
     return reply.code(403).send("Authentification invalide");
   }
   const token = authHeader.slice(7);
-  console.log(token);
-
   const decodedToken = jwt.verify(token, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF");
   const userId = decodedToken.userId;
-
-  console.log(userId);
 
   try {
     const userAccount = await Account.findById(userId);
@@ -118,7 +116,17 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
-// send image
-// server.post("image", async (request, reply) => {
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
 
-// })
+// send image
+server.post("/image", {}, upload.single("lala"), async (request, reply) => {
+  console.log(request);
+});
