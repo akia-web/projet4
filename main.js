@@ -159,7 +159,7 @@ server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
 
   const name = request.file.filename;
   const date = Date();
-  const isPublic = false;
+  const isPublic = true;
   const url = "lili";
   const newImage = new ImageUser({ date, name, isPublic, url, userId });
   await newImage.save();
@@ -227,6 +227,69 @@ server.get("/imagesUser/", async (request, reply) => {
 
     // Renvoyer les données
     reply.send(imageData);
+  } catch (error) {
+    console.log(error);
+    reply.code(500).send("Erreur serveur");
+  }
+});
+
+// Update bool image
+
+server.put("/images/:id", async (request, reply) => {
+  try {
+    // Récupérer l'identifiant de l'image à mettre à jour depuis les paramètres de l'URL
+    const imageId = request.params.id;
+
+    // Vérifier que l'utilisateur est connecté et que son token JWT correspond bien à l'utilisateur en question
+    const authHeader = request.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return reply.code(403).send("Authentification invalide");
+    }
+
+    const token = authHeader.slice(7);
+
+    const decodedToken = jwt.verify(
+      token,
+      "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF"
+    );
+
+    const userId = decodedToken.userId;
+
+    // Récupérer l'image correspondant à l'identifiant et vérifier que l'utilisateur est autorisé à la modifier
+    const image = await ImageUser.findById(imageId);
+
+    if (!image) {
+      return reply.code(404).send("Image non trouvée");
+    }
+
+    if (image.userId !== userId) {
+      return reply.code(403).send("Non autorisé à modifier cette image");
+    }
+
+    image.isPublic = !image.isPublic;
+
+    // Mettre à jour l'état "isPublic" de l'image avec la valeur reçue dans la requête
+    // const { isPublic } = request.body;
+
+    // if (isPublic === undefined) {
+    //   return reply.code(400).send("isPublic manquant");
+    // }
+
+    // image.isPublic = isPublic;
+
+    // Sauvegarder la mise à jour dans la base de données
+    await image.save();
+
+    // Renvoyer la nouvelle version de l'image
+    const data = fs.readFileSync(`uploads/${image.name}`);
+
+    reply.send({
+      id: image._id,
+      name: image.name,
+      date: image.date,
+      url: image.url,
+    });
   } catch (error) {
     console.log(error);
     reply.code(500).send("Erreur serveur");
