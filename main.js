@@ -36,6 +36,7 @@ const start = async () => {
 start();
 
 const Account = model("account", AccountDto);
+const ImageUser = model("imageUser", imageDto);
 
 // Inscription
 
@@ -144,3 +145,23 @@ server.delete("/account", async (request, reply) => {
 });
 
 // send image
+
+server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
+  console.log("truc");
+  const authHeader = request.headers.authorization;
+  const token = authHeader.slice(7);
+  const decodedToken = jwt.verify(token, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF");
+  const userId = decodedToken.userId;
+  const userAccount = await Account.findById(userId);
+  if (!userAccount) {
+    return reply.code(404).send("Compte non trouvé");
+  }
+
+  const name = request.file.filename;
+  const date = Date();
+  const isPublic = false;
+  const url = "lili";
+  const newImage = new ImageUser({ date, name, isPublic, url, userId });
+  await newImage.save();
+  reply.code(201).send("image enregistré");
+});
