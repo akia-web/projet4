@@ -282,7 +282,6 @@ server.put("/images/:id", async (request, reply) => {
     await image.save();
 
     // Renvoyer la nouvelle version de l'image
-    const data = fs.readFileSync(`uploads/${image.name}`);
 
     reply.send({
       id: image._id,
