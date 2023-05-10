@@ -13,14 +13,12 @@ const server = fastify({ logger: true });
 
 server.register(multer.contentParser);
 
-
 //Probleme de cors
 server.register(cors, {
   origin: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Authorization", "Content-Type"],
 });
-
 
 // Connexion DB
 
@@ -39,7 +37,6 @@ start();
 
 const Account = model("account", AccountDto);
 const ImageUser = model("imageUser", imageDto);
-
 
 // Inscription
 
@@ -72,7 +69,6 @@ server.post("/account", async (request, reply) => {
     }
   }
 });
-
 
 // Connexion avec token
 
@@ -116,8 +112,6 @@ server.post("/login", async (request, reply) => {
   }
 });
 
-
-
 // Delete compte
 
 server.delete("/account", async (request, reply) => {
@@ -150,8 +144,6 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
-
-
 // send image
 
 server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
@@ -174,9 +166,6 @@ server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
   reply.code(201).send("image enregistré");
 });
 
-
-
-
 // Get all no connecte soit isPublic true
 
 server.get("/images", async (request, reply) => {
@@ -190,8 +179,7 @@ server.get("/images", async (request, reply) => {
           name: image.name,
           date: image.date,
           isPublic: image.isPublic,
-          url : image.url
-
+          url: image.url,
         };
       })
     );
@@ -202,26 +190,24 @@ server.get("/images", async (request, reply) => {
   }
 });
 
-
-
-
-
 // Get all image for user and all true and false is connecte
 
-
-server.get("/images/:userId", async (request, reply) => {
+server.get("/imagesUser/", async (request, reply) => {
   try {
+    const authHeader = request.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return reply.code(403).send("Authentification invalide");
+    }
     // Vérifier que l'utilisateur est connecté et que son token JWT correspond bien à l'utilisateur en question
-    const userId = request.params.userId;
-    const token = request.headers.authorization.split(" ")[1];
+    const token = authHeader.slice(7);
+
     const decodedToken = jwt.verify(
       token,
       "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF"
     );
-    if (decodedToken.userId !== userId) {
-      throw new Error("Invalid user ID");
-    }
 
+    const userId = decodedToken.userId;
     // Récupérer toutes les images, qu'elles soient publiques ou privées
     const images = await ImageUser.find({ userId: userId });
 
@@ -246,7 +232,3 @@ server.get("/images/:userId", async (request, reply) => {
     reply.code(500).send("Erreur serveur");
   }
 });
-
-
-
-
