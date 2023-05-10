@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import { imageDto } from "./models/imageDto.js";
 import multer from "fastify-multer";
 import { imgUpload } from "./functions/images.js";
+import { generateRandomString } from "./functions/url.js";
 
 const server = fastify({ logger: true });
 
@@ -90,8 +91,6 @@ server.post("/login", async (request, reply) => {
       throw new Error("Email ou mot de passe incorrect");
     }
 
-    console.log(user);
-
     // Si les informations d'identification sont valides, créer le jeton JWT
 
     const token = jwt.sign(
@@ -146,8 +145,7 @@ server.delete("/account", async (request, reply) => {
 
 // send image
 
-server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
-  console.log("truc");
+server.post("/images", { preHandler: imgUpload }, async (request, reply) => {
   const authHeader = request.headers.authorization;
   const token = authHeader.slice(7);
   const decodedToken = jwt.verify(token, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF");
@@ -157,10 +155,24 @@ server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
     return reply.code(404).send("Compte non trouvé");
   }
 
-  const name = request.file.filename;
+  const name = `projet4/uploads/${request.file.filename}`;
   const date = Date();
-  const isPublic = true;
-  const url = "lili";
+  const isPublic = false;
+  let url = generateRandomString();
+  let isUrlExist = true;
+  let urlExist = await ImageUser.find({ url: url });
+
+  if (urlExist.length == 0) {
+    isUrlExist = false;
+  } else {
+    while (isUrlExist) {
+      url = generateRandomString();
+      urlExist = await ImageUser.find({ url: url });
+      if (urlExist.length == 0) {
+        isUrlExist = false;
+      }
+    }
+  }
   const newImage = new ImageUser({ date, name, isPublic, url, userId });
   await newImage.save();
   reply.code(201).send("image enregistré");
@@ -173,7 +185,6 @@ server.get("/images", async (request, reply) => {
     const images = await ImageUser.find({ isPublic: true });
     const imageData = await Promise.all(
       images.map(async (image) => {
-        const data = fs.readFileSync(`uploads/${image.name}`);
         return {
           id: image._id,
           name: image.name,
@@ -192,7 +203,7 @@ server.get("/images", async (request, reply) => {
 
 // Get all image for user and all true and false is connecte
 
-server.get("/imagesUser/", async (request, reply) => {
+server.get("/imagesUser", async (request, reply) => {
   try {
     const authHeader = request.headers.authorization;
 
@@ -214,7 +225,6 @@ server.get("/imagesUser/", async (request, reply) => {
     // Construire le tableau de données à renvoyer
     const imageData = await Promise.all(
       images.map(async (image) => {
-        const data = fs.readFileSync(`uploads/${image.name}`);
         return {
           id: image._id,
           name: image.name,
@@ -269,16 +279,6 @@ server.put("/images/:id", async (request, reply) => {
 
     image.isPublic = !image.isPublic;
 
-    // Mettre à jour l'état "isPublic" de l'image avec la valeur reçue dans la requête
-    // const { isPublic } = request.body;
-
-    // if (isPublic === undefined) {
-    //   return reply.code(400).send("isPublic manquant");
-    // }
-
-    // image.isPublic = isPublic;
-
-    // Sauvegarder la mise à jour dans la base de données
     await image.save();
 
     // Renvoyer la nouvelle version de l'image
