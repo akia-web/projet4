@@ -159,9 +159,46 @@ server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
 
   const name = request.file.filename;
   const date = Date();
-  const isPublic = false;
+  const isPublic = true;
   const url = "lili";
   const newImage = new ImageUser({ date, name, isPublic, url, userId });
   await newImage.save();
   reply.code(201).send("image enregistré");
 });
+
+// Get all no connecte soit isPublic true
+
+server.get("/images", async (request, reply) => {
+  try {
+    const images = await ImageUser.find({ isPublic: true });
+    const imageData = await Promise.all(
+      images.map(async (image) => {
+        const data = fs.readFileSync(`uploads/${image.name}`);
+        return {
+          id: image._id,
+          name: image.name,
+          date: image.date,
+          isPublic: image.isPublic,
+          url : image.url
+
+        };
+      })
+    );
+    reply.send(imageData);
+  } catch (error) {
+    console.log(error);
+    reply.code(500).send("Erreur serveur");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
