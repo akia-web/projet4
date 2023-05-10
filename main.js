@@ -143,6 +143,43 @@ server.delete("/account", async (request, reply) => {
   }
 });
 
+// delete image
+
+server.delete("/deleteImage/:imageId", async (request, reply) => {
+  const authHeader = request.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return reply.code(403).send("Authentification invalide");
+  }
+
+  const token = authHeader.slice(7);
+
+  const decodedToken = jwt.verify(token, "16UQLq1HZ3CNwhvgrarV6pMoA2CDjb4tyF");
+
+  const userId = decodedToken.userId;
+
+  try {
+    const imageId = request.params.imageId;
+    const searchimageUser = await ImageUser.findById(imageId);
+
+    if (userId != searchimageUser.userId) {
+      return reply.code(403).send("interdit de supprimer image");
+    }
+
+    const image = await ImageUser.findByIdAndDelete(imageId);
+
+    if (!image) {
+      return reply.code(404).send("Image non trouvée");
+    }
+
+    reply.code(200).send("Image supprimée avec succès !");
+  } catch (error) {
+    console.log(error);
+
+    reply.code(401).send("Authentification invalide");
+  }
+});
+
 // send image
 
 server.post("/images", { preHandler: imgUpload }, async (request, reply) => {
