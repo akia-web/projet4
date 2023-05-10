@@ -136,8 +136,16 @@ server.delete("/account", async (request, reply) => {
     await Account.findByIdAndDelete(userId);
 
     const imagesAccount = await ImageUser.find({ userId: userId });
-    imagesAccount.forEach(async element => {
-      await ImageUser.findByIdAndDelete(element.id)
+    imagesAccount.forEach(async (element) => {
+      fs.unlink(element.name, (err) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log("Le fichier a été supprimé avec succès");
+      });
+
+      await ImageUser.findByIdAndDelete(element.id);
     });
     reply.code(200).send("Compte supprimé avec succès !");
   } catch (error) {
@@ -169,7 +177,13 @@ server.delete("/deleteImage/:imageId", async (request, reply) => {
     if (userId != searchimageUser.userId) {
       return reply.code(403).send("interdit de supprimer image");
     }
-
+    fs.unlink(searchimageUser.name, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log("Le fichier a été supprimé avec succès");
+    });
     const image = await ImageUser.findByIdAndDelete(imageId);
 
     if (!image) {
@@ -196,7 +210,7 @@ server.post("/images", { preHandler: imgUpload }, async (request, reply) => {
     return reply.code(404).send("Compte non trouvé");
   }
 
-  const name = `projet4/uploads/${request.file.filename}`;
+  const name = `uploads/${request.file.filename}`;
   const date = Date();
   const isPublic = false;
   let url = generateRandomString();
