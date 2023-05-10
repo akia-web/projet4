@@ -135,6 +135,10 @@ server.delete("/account", async (request, reply) => {
 
     await Account.findByIdAndDelete(userId);
 
+    const imagesAccount = await ImageUser.find({ userId: userId });
+    imagesAccount.forEach(async element => {
+      await ImageUser.findByIdAndDelete(element.id)
+    });
     reply.code(200).send("Compte supprimé avec succès !");
   } catch (error) {
     console.log(error);
