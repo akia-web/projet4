@@ -144,7 +144,3 @@ server.delete("/account", async (request, reply) => {
 });
 
 // send image
-
-server.post("/image", { preHandler: imgUpload }, async (request, reply) => {
-  console.log("upload");
-});
